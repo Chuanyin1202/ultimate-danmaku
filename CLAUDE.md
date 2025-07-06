@@ -88,4 +88,4 @@ Please do **not**:
 - Translate Chinese comments or variables
 - Make changes without clear justification
 
-**Language Preference**: ¦^ÂĞ¤º®e½Ğ¨Ï¥ÎÁcÅé¤¤¤å
+**Language Preference**: è«‹ä½¿ç”¨ç¹é«”ä¸­æ–‡å›è¦†

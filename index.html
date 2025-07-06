@@ -1,94 +1,89 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
- <head>
-  <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport"/>
-  <title>
-   終極彈幕大師 - 節奏強化版
-  </title>
-  <link href="style.css" rel="stylesheet"/>
- </head>
- <body>
-  <div class="game-container" id="gameContainer">
-   <canvas id="canvas">
-   </canvas>
-   <div class="slowmo-overlay" id="slowmoOverlay">
-   </div>
-   <div class="start-screen screen-overlay" id="startScreen">
-    <div style="background: rgba(0,0,0,0.7); padding: 30px; border-radius: 20px; max-width: 600px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);">
-     <h1 style="font-size: 36px; background: linear-gradient(45deg, #00d4ff, #ffd700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px;">
-      🚀 組裝彈幕大師 🚀
-     </h1>
-     <p style="font-size: 18px; margin-bottom: 20px; opacity: 0.9;">
-      觸控移動 | 自動射擊 | 收集道具
-     </p>
-     <div class="stats-grid">
-      <div>最高分: <span id="displayHighScore">0</span></div>
-      <div>總遊戲: <span id="displayTotalGames">0</span></div>
-      <div>總擊殺: <span id="displayTotalKills">0</span></div>
-      <div>成就數: <span id="displayAchievements">0</span></div>
-     </div>
-     <button class="btn" onclick="game.showBuilderScreen()">
-      開始組裝
-     </button>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>組裝彈幕大師</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <canvas id="canvas"></canvas>
+        <div class="ui">
+            <div>分數: <span id="score">0</span></div>
+            <div>等級: <span id="level">1</span></div>
+            <div>生命: <span id="lives">3</span></div>
+            <div id="wave-display">準備迎敵...</div>
+        </div>
+        <!-- 左下角慢動作按鈕 -->
+        <div class="control-panel">
+            <div class="special-btn disabled" id="specialBtn">慢動作</div>
+        </div>
+        
+        <!-- 右下角 Pause 按鈕 -->
+        <div class="pause-control">
+            <div class="pause-btn" id="pauseBtn">⏸</div>
+        </div>
+        <div class="bars">
+            <div class="bar"><div class="bar-fill health-fill" id="healthFill"></div></div>
+            <div class="bar"><div class="bar-fill shield-fill" id="shieldFill"></div></div>
+            <div class="bar"><div class="bar-fill special-fill" id="specialFill"></div></div>
+        </div>
+        <div class="combo">
+            <div>連擊: <span id="combo">0</span></div>
+            <div class="combo-multiplier">x<span id="multiplier">1</span></div>
+        </div>
+        <div class="boss-health" id="bossHealth">
+            <div class="boss-health-fill" id="bossHealthFill"></div>
+        </div>
+        <div class="achievement-popup" id="achievementPopup"></div>
+        <div class="slowmo-overlay" id="slowmoOverlay"></div>
+
+        <div id="startScreen" class="screen-overlay">
+            <div class="menu-box">
+                <div class="title-gradient">🚀 組裝彈幕大師 🚀</div>
+                <div>四面湧敵 生存模式</div>
+                <div class="stats-grid">
+                    <div>最高分: <span id="displayHighScore">0</span></div>
+                    <div>總遊戲: <span id="displayTotalGames">0</span></div>
+                    <div>總擊殺: <span id="displayTotalKills">0</span></div>
+                    <div>成就數: <span id="displayAchievements">0</span></div>
+                </div>
+                <button id="startBuildBtn" class="btn">開始組裝</button>
+            </div>
+        </div>
+
+        <div id="builderScreen" class="screen-overlay">
+            <div class="content">
+                <div class="title-gradient">🛠️ 組裝你的戰機</div>
+                <div class="builder-grid">
+                    <div id="body-selector"></div>
+                    <div id="weapon-selector"></div>
+                    <div id="engine-selector"></div>
+                </div>
+                <div class="builder-summary" id="builder-summary"></div>
+                <button id="startCombatBtn" class="btn btn-combat">🔥 開始戰鬥！</button>
+            </div>
+        </div>
+
+        <div id="gameOver" class="screen-overlay">
+            <div class="menu-box">
+                <div class="title-gradient-gameover">🎮 遊戲結束</div>
+                <div class="stats-grid" id="finalStats"></div>
+                <div id="newAchievements"></div>
+                <button id="restartBtn" class="btn">重新開始</button>
+                <button id="backToMenuBtn" class="btn">返回主選單</button>
+            </div>
+        </div>
+
+        <div id="pauseScreen" class="screen-overlay">
+            <div class="menu-box">
+                <div class="title-gradient">⏸ 已暫停</div>
+                <button id="resumeBtn" class="btn">繼續遊戲</button>
+                <button id="pauseBackToMenuBtn" class="btn">返回主選單</button>
+            </div>
+        </div>
     </div>
-   </div>
-   <div class="screen-overlay" id="builderScreen">
-    <div class="content">
-     <h1 style="font-size: 42px; font-weight: bold; margin-bottom: 30px; background: linear-gradient(45deg, #00d4ff, #ffd700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-align: center;">
-      🛠️ 組裝你的戰機
-     </h1>
-     <div class="builder-grid">
-      <div class="selector" id="body-selector"></div>
-      <div class="selector" id="weapon-selector"></div>
-      <div class="selector" id="engine-selector"></div>
-     </div>
-     <div class="builder-summary" id="builder-summary"></div>
-     <button class="btn" onclick="game.confirmSelectionAndStart()" style="margin-top: 30px; background: linear-gradient(145deg, #ff4757, #e84118, #c44569); font-size: 18px;">
-      🔥 開始戰鬥！
-     </button>
-    </div>
-   </div>
-   <div class="ui">
-    <div>分數: <span id="score">0</span></div>
-    <div>等級: <span id="level">1</span></div>
-    <div>生命: <span id="lives">3</span></div>
-    <div id="wave-display" style="border-left-color: #ffd700;"></div>
-   </div>
-   <div class="pause-btn" id="pauseBtn">⏸</div>
-   <div class="bars">
-    <div class="bar"><div class="bar-fill health-fill" id="healthFill"></div></div>
-    <div class="bar"><div class="bar-fill shield-fill" id="shieldFill"></div></div>
-    <div class="bar"><div class="bar-fill special-fill" id="specialFill"></div></div>
-   </div>
-   <div class="combo">
-    <div>連擊: <span id="combo">0</span></div>
-    <div class="combo-multiplier">x<span id="multiplier">1</span></div>
-   </div>
-   <div class="boss-health" id="bossHealth"><div class="boss-health-fill" id="bossHealthFill"></div></div>
-   <button class="special-btn disabled" id="specialBtn">慢動作</button>
-   <div class="achievement-popup" id="achievementPopup"></div>
-   <div class="game-over screen-overlay" id="gameOver">
-    <div style="background: rgba(0,0,0,0.8); padding: 30px; border-radius: 20px; max-width: 600px; backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.2);">
-     <h2 style="font-size: 32px; background: linear-gradient(45deg, #ff4757, #ffd700); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-      🎮 遊戲結束
-     </h2>
-     <div id="finalStats"></div>
-     <div id="newAchievements"></div>
-     <button class="btn" onclick="game.restart()">重新開始</button>
-     <button class="btn" onclick="game.backToMenu()">返回主選單</button>
-    </div>
-   </div>
-   <div class="pause-screen screen-overlay" id="pauseScreen">
-    <div style="background: rgba(0,0,0,0.8); padding: 30px; border-radius: 20px; max-width: 500px; backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.2);">
-     <h2 style="font-size: 28px; color: #00d4ff;">
-      ⏸ 已暫停
-     </h2>
-     <button class="btn" onclick="game.togglePause()">繼續遊戲</button>
-     <button class="btn" onclick="game.backToMenu()">返回主選單</button>
-    </div>
-   </div>
-  </div>
-  <script src="main.js"></script>
- </body>
+    <script type="module" src="main_refactored.js"></script>
+</body>
 </html>
